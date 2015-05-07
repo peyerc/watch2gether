@@ -2,6 +2,8 @@ package controllers;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import models.W2GEvent;
+import models.W2GEventRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -20,9 +22,26 @@ import views.html.index;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import views.html.*;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import java.util.Date;
 import java.util.Iterator;
 
+@Named
+@Singleton
 public class Application extends Controller {
+
+    private final W2GEventRepository w2GEventRepository;
+
+    // We are using constructor injection to receive a repository to support our desire for immutability.
+    @Inject
+    public Application(final W2GEventRepository w2GEventRepository) {
+        this.w2GEventRepository = w2GEventRepository;
+    }
+
 
     public static Result index() {
         return ok(index.render("Your new application is ready."));
@@ -71,6 +90,24 @@ public class Application extends Controller {
         result.put("show", show);
         return ok(result);
     }
+
+    public Result dbTest() {
+
+        final W2GEvent event = new W2GEvent();
+        event.channel = "SRF 1";
+        event.show = "10vor10";
+        event.time = new Date();
+        //event.msisdns.add("+41767202020");
+
+        final W2GEvent savedEvent = w2GEventRepository.save(event);
+
+        final W2GEvent retrievedEvent = w2GEventRepository.findOne(savedEvent.id);
+
+        // Deliver the index page with a message showing the id that was generated.
+
+        return ok(views.html.index.render("Found id: " + retrievedEvent.id));
+    }
+
 
     public static Result sendMessage() throws IOException {
 
