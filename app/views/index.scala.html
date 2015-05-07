@@ -1,9 +1,17 @@
-@(events: Iterable)
+@(eventsIt: Iterator[W2GEvent])
 
 @main("Welcome to Play") {
 
-    @for(event <- events.iterator) {
-        event.id
+    @for(event <- eventsIt) {
+        @event.id
+        @event.show
+        @event.time
+
+        @for(msisdn <- event.msisdns) {
+            @msisdn.msisdn
+        }
+
+        <br/>
     }
 
 }

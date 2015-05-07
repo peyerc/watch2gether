@@ -20,7 +20,7 @@ public class W2GEvent {
     public String channel;
     public Date time;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     public Set<W2GEventMsisdn> msisdns = new HashSet<>();
 
 }

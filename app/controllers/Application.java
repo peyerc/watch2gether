@@ -2,35 +2,35 @@ package controllers;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import models.W2GEvent;
-import models.W2GEventMsisdn;
-import models.W2GEventRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.W2GEvent;
+import models.W2GEventMsisdn;
+import models.W2GEventRepository;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import scala.collection.JavaConversions;
 import views.html.index;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import views.html.*;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 
 @Named
 @Singleton
@@ -45,8 +45,13 @@ public class Application extends Controller {
     }
 
 
-    public static Result index() {
-        return ok(index.render("Your new application is ready."));
+    public Result index() {
+        return listAllEvents();
+    }
+
+    public Result listAllEvents() {
+        final Iterable<W2GEvent> w2GEvents = w2GEventRepository.findAll();
+        return ok(views.html.index.render(w2GEvents.iterator()));
     }
 
     /**
@@ -60,7 +65,8 @@ public class Application extends Controller {
      * @return
      */
     @BodyParser.Of(BodyParser.Json.class)
-    public static Result saveEvent() {
+    public Result saveEvent() {
+
         JsonNode json = request().body().asJson();
         JsonNode channelN = json.findValue("channel");
         JsonNode timeN = json.findValue("time");
@@ -70,26 +76,27 @@ public class Application extends Controller {
             badRequest("A channel, time or show must be provided");
         }
 
-        String channel = channelN.asText();
-        Long time = timeN.asLong();
-        String show = showN.asText();
+        final W2GEvent event = new W2GEvent();
+
+        event.channel = channelN.asText();
+        event.time = new Date(timeN.asLong() * 1000);
+        event.show = showN.asText();
 
         JsonNode numbersN = json.findValue("numbers");
         if(numbersN != null) {
             Iterator<JsonNode> elements = numbersN.elements();
             while (elements.hasNext()) {
                 JsonNode next = elements.next();
-                int hdyNr = next.asInt();
+                event.msisdns.add(new W2GEventMsisdn(next.asText()));
 
             }
         }
 
-        // TODO: Now Save does data to database
-
+        w2GEventRepository.save(event);
 
         ObjectNode result = Json.newObject();
         result.put("status", "ok");
-        result.put("show", show);
+        result.put("show", event.show);
         return ok(result);
     }
 
@@ -100,17 +107,17 @@ public class Application extends Controller {
         event.show = "10vor10";
         event.time = new Date();
         event.msisdns.add(new W2GEventMsisdn("41767202020"));
+        event.msisdns.add(new W2GEventMsisdn("41767201234"));
+        event.msisdns.add(new W2GEventMsisdn("41767204444"));
 
         final W2GEvent savedEvent = w2GEventRepository.save(event);
 
 
         final Iterable<W2GEvent> w2GEvents = w2GEventRepository.findAll();
 
-        w2GEvents
-
         // Deliver the index page with a message showing the id that was generated.
 
-        return ok(views.html.index.render(w2GEvents);
+        return ok(views.html.index.render(w2GEvents.iterator()));
     }
 
 
@@ -120,6 +127,7 @@ public class Application extends Controller {
         HttpPost httpPost = new HttpPost("https://api.swisscom.com/v1/messaging/sms/outbound/tel:+40000000000/requests");
 
         String json = createJsonMessage();
+
         StringEntity entity = new StringEntity(json);
         httpPost.setEntity(entity);
         httpPost.setHeader("Accept", "application/json");
@@ -127,14 +135,15 @@ public class Application extends Controller {
         httpPost.setHeader("client_id", "7V3QbSNyGonv4wETAIltvnN5bPYZbgyk");
 
         CloseableHttpResponse response = client.execute(httpPost);
-        if(response.getStatusLine().getStatusCode() == 200) {
-            return ok("Message sent");
-        } else {
-            badRequest("Message couldn't be sent");
-        }
-
+        String bodyAsString = EntityUtils.toString(response.getEntity());
+        int statusCode = response.getStatusLine().getStatusCode();
         client.close();
-        return ok("Message sent");
+
+        if(statusCode == 200) {
+            return ok("Message sent: " + bodyAsString);
+        } else {
+            return badRequest("Message couldn't be sent\n\nRequest: " + json + "\nResponse: " + bodyAsString);
+        }
     }
 
     private static String createJsonMessage() throws IOException {
@@ -143,28 +152,28 @@ public class Application extends Controller {
 
         // create a json factory to write the treenode as json. for the example
         // we just write to console
-        JsonFactory jsonFactory = new JsonFactory();
         StringWriter sw = new StringWriter();
-        JsonGenerator generator = jsonFactory.createGenerator(sw);
         ObjectMapper mapper = new ObjectMapper();
 
         // the root node - rootNode
         JsonNode rootNode = factory.objectNode();
-        mapper.writeTree(generator, rootNode);
         ObjectNode outboundSMSMessageRequest = mapper.createObjectNode();
         outboundSMSMessageRequest.put("senderAddress", "tel:+40000000000");
         ArrayNode address = mapper.createArrayNode();
-        address.add("tel:+41787710811");
+        address.add("tel:+41767202020");
+        address.add("tel:+41765671938");
         outboundSMSMessageRequest.put("address", address);
         ObjectNode message = mapper.createObjectNode();
-        message.put("message", "This is the message");
+        message.put("message", "This was a triumph!");
         outboundSMSMessageRequest.put("outboundSMSTextMessage", message);
         outboundSMSMessageRequest.put("clientCorrelator", "Any id");
         outboundSMSMessageRequest.put("senderName", "watch2gether");
 
-        ((ObjectNode) rootNode).put("outboundSMSMessageRequest", "new nickname");
+        ((ObjectNode) rootNode).put("outboundSMSMessageRequest", outboundSMSMessageRequest);
+
+        mapper.writeValue(sw, rootNode);
+
         return sw.toString();
     }
 
 }
-

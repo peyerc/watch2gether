@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.Set;
 
@@ -20,7 +21,10 @@ public class W2GEventMsisdn {
 
     public String msisdn;
 
-    public W2GEventMsisdn(String s) {
-        this.msisdn = s;
+    public W2GEventMsisdn() {
+    }
+
+    public W2GEventMsisdn(String msisdn) {
+        this.msisdn = msisdn;
     }
 }
