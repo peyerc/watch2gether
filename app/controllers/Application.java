@@ -1,6 +1,7 @@
 package controllers;
 
 import models.W2GEvent;
+import models.W2GEventMsisdn;
 import models.W2GEventRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,6 +15,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 @Named
 @Singleton
@@ -82,15 +84,18 @@ public class Application extends Controller {
         event.channel = "SRF 1";
         event.show = "10vor10";
         event.time = new Date();
-        //event.msisdns.add("+41767202020");
+        event.msisdns.add(new W2GEventMsisdn("41767202020"));
 
         final W2GEvent savedEvent = w2GEventRepository.save(event);
 
-        final W2GEvent retrievedEvent = w2GEventRepository.findOne(savedEvent.id);
+
+        final Iterable<W2GEvent> w2GEvents = w2GEventRepository.findAll();
+
+        w2GEvents
 
         // Deliver the index page with a message showing the id that was generated.
 
-        return ok(views.html.index.render("Found id: " + retrievedEvent.id));
+        return ok(views.html.index.render(w2GEvents);
     }
 
 

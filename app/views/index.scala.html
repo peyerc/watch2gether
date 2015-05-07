@@ -1,7 +1,9 @@
-@(message: String)
+@(events: Iterable)
 
 @main("Welcome to Play") {
 
-    @play20.welcome(message, style = "Java")
+    @for(event <- events.iterator) {
+        event.id
+    }
 
 }

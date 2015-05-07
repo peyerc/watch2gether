@@ -1,19 +1,19 @@
-2015-05-07 16:44:06,533 - [INFO] - from play in pool-4-thread-3 
+2015-05-07 17:17:32,020 - [INFO] - from play in pool-4-thread-3 
 Listening for HTTP on /0:0:0:0:0:0:0:0:9000
 
-2015-05-07 16:44:07,924 - [INFO] - from play in play-internal-execution-context-1 
+2015-05-07 17:17:33,449 - [INFO] - from play in play-internal-execution-context-1 
 datasource [jdbc:h2:mem:play;DB_CLOSE_DELAY=-1] bound to JNDI as DefaultDS
 
-2015-05-07 16:44:08,051 - [INFO] - from play in play-internal-execution-context-1 
+2015-05-07 17:17:33,574 - [INFO] - from play in play-internal-execution-context-1 
 database [default] connected at jdbc:h2:mem:play
 
-2015-05-07 16:44:08,120 - [ERROR] - from org.reflections.Reflections in play-internal-execution-context-1 
+2015-05-07 17:17:33,618 - [ERROR] - from org.reflections.Reflections in play-internal-execution-context-1 
 given scan urls are empty. set urls in the configuration
 
-2015-05-07 16:44:08,387 - [ERROR] - from application in New I/O worker #1 
+2015-05-07 17:17:33,806 - [ERROR] - from application in New I/O worker #1 
 
 
-! @6m49b0lo9 - Internal server error, for (GET) [/] ->
+! @6m49faodm - Internal server error, for (GET) [/] ->
 
 play.api.db.evolutions.InvalidDatabaseRevision: Database 'default' needs evolution![An SQL script need to be run on your database.]
 	at play.api.db.evolutions.EvolutionsPlugin$$anonfun$onStart$1$$anonfun$apply$1.apply$mcV$sp(Evolutions.scala:510) ~[play-jdbc_2.11-2.3.8.jar:2.3.8]
@@ -46,7 +46,7 @@ play.api.db.evolutions.InvalidDatabaseRevision: Database 'default' needs evoluti
 	at scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979) ~[scala-library-2.11.1.jar:na]
 	at scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107) ~[scala-library-2.11.1.jar:na]
 
-2015-05-07 16:44:10,744 - [WARN] - from play in play-internal-execution-context-1 
+2015-05-07 17:27:16,293 - [WARN] - from play in play-internal-execution-context-1 
 Error stopping plugin
 java.lang.NullPointerException: null
 	at play.libs.ws.ning.NingWSPlugin.onStop(NingWSPlugin.java:31) ~[play-java-ws_2.11-2.3.8.jar:2.3.8]
@@ -77,15 +77,15 @@ java.lang.NullPointerException: null
 	at scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979) [scala-library-2.11.1.jar:na]
 	at scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107) [scala-library-2.11.1.jar:na]
 
-2015-05-07 16:44:10,809 - [INFO] - from play in play-internal-execution-context-1 
+2015-05-07 17:27:16,371 - [INFO] - from play in play-internal-execution-context-1 
 datasource [jdbc:h2:mem:play;DB_CLOSE_DELAY=-1] bound to JNDI as DefaultDS
 
-2015-05-07 16:44:10,810 - [INFO] - from play in play-internal-execution-context-1 
+2015-05-07 17:27:16,373 - [INFO] - from play in play-internal-execution-context-1 
 database [default] connected at jdbc:h2:mem:play
 
-2015-05-07 16:44:10,811 - [ERROR] - from org.reflections.Reflections in play-internal-execution-context-1 
+2015-05-07 17:27:16,374 - [ERROR] - from org.reflections.Reflections in play-internal-execution-context-1 
 given scan urls are empty. set urls in the configuration
 
-2015-05-07 16:44:12,232 - [INFO] - from play in play-internal-execution-context-1 
+2015-05-07 17:27:17,955 - [INFO] - from play in play-internal-execution-context-1 
 Application started (Dev)
 

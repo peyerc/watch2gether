@@ -1,16 +1,17 @@
 package models;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by peyerco on 07.05.15.
  */
 @Entity
 public class W2GEvent {
+
     @Id
     @GeneratedValue
     public Long id;
@@ -18,6 +19,8 @@ public class W2GEvent {
     public String show;
     public String channel;
     public Date time;
-    //public Set<String> msisdns;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    public Set<W2GEventMsisdn> msisdns = new HashSet<>();
 
 }
