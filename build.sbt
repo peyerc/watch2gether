@@ -12,3 +12,5 @@ libraryDependencies ++= Seq(
   cache,
   javaWs
 )
+
+libraryDependencies += "org.apache.httpcomponents" % "httpclient" % "4.3.1"
