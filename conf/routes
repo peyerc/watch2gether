@@ -9,5 +9,7 @@ GET         /dbtest                    @controllers.Application.dbTest()
 # Post
 POST        /watch2gether/event        controllers.Application.saveEvent()
 
+GET       /watch2gether/sendMessage  controllers.Application.sendMessage()
+
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file              controllers.Assets.at(path="/public", file)
+GET        /assets/*file        controllers.Assets.at(path="/public", file)

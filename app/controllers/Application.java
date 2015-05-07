@@ -1,13 +1,28 @@
 package controllers;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import models.W2GEvent;
 import models.W2GEventMsisdn;
 import models.W2GEventRepository;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import play.libs.Json;
-import play.mvc.*;
+import play.mvc.BodyParser;
+import play.mvc.Controller;
+import play.mvc.Result;
+import views.html.index;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import views.html.*;
 
 import javax.inject.Inject;
@@ -99,4 +114,57 @@ public class Application extends Controller {
     }
 
 
+    public static Result sendMessage() throws IOException {
+
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://api.swisscom.com/v1/messaging/sms/outbound/tel:+40000000000/requests");
+
+        String json = createJsonMessage();
+        StringEntity entity = new StringEntity(json);
+        httpPost.setEntity(entity);
+        httpPost.setHeader("Accept", "application/json");
+        httpPost.setHeader("Content-type", "application/json");
+        httpPost.setHeader("client_id", "7V3QbSNyGonv4wETAIltvnN5bPYZbgyk");
+
+        CloseableHttpResponse response = client.execute(httpPost);
+        if(response.getStatusLine().getStatusCode() == 200) {
+            return ok("Message sent");
+        } else {
+            badRequest("Message couldn't be sent");
+        }
+
+        client.close();
+        return ok("Message sent");
+    }
+
+    private static String createJsonMessage() throws IOException {
+        // Create the node factory that gives us nodes.
+        JsonNodeFactory factory = new JsonNodeFactory(false);
+
+        // create a json factory to write the treenode as json. for the example
+        // we just write to console
+        JsonFactory jsonFactory = new JsonFactory();
+        StringWriter sw = new StringWriter();
+        JsonGenerator generator = jsonFactory.createGenerator(sw);
+        ObjectMapper mapper = new ObjectMapper();
+
+        // the root node - rootNode
+        JsonNode rootNode = factory.objectNode();
+        mapper.writeTree(generator, rootNode);
+        ObjectNode outboundSMSMessageRequest = mapper.createObjectNode();
+        outboundSMSMessageRequest.put("senderAddress", "tel:+40000000000");
+        ArrayNode address = mapper.createArrayNode();
+        address.add("tel:+41787710811");
+        outboundSMSMessageRequest.put("address", address);
+        ObjectNode message = mapper.createObjectNode();
+        message.put("message", "This is the message");
+        outboundSMSMessageRequest.put("outboundSMSTextMessage", message);
+        outboundSMSMessageRequest.put("clientCorrelator", "Any id");
+        outboundSMSMessageRequest.put("senderName", "watch2gether");
+
+        ((ObjectNode) rootNode).put("outboundSMSMessageRequest", "new nickname");
+        return sw.toString();
+    }
+
 }
+
