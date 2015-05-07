@@ -52,7 +52,7 @@ public class Application extends Controller {
                     public void run() {
                         Calendar cal = Calendar.getInstance();
                         System.out.println("PING!!!! " + cal.getTime());
-                        w2GEventRepository.findOne(1);
+                        //w2GEventRepository.findOne(1);
                     }
                 },
                 Akka.system().dispatcher()
