@@ -20,7 +20,14 @@ public class W2GEvent {
     public String channel;
     public Date time;
 
+    @Enumerated(EnumType.STRING)
+    public DeliveryStatus deliveryStatus;
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     public Set<W2GEventMsisdn> msisdns = new HashSet<>();
+
+    public W2GEvent() {
+        this.deliveryStatus = DeliveryStatus.PENDING;
+    }
 
 }

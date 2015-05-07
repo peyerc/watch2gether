@@ -1,7 +1,5 @@
 package controllers;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -10,27 +8,28 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.W2GEvent;
 import models.W2GEventMsisdn;
 import models.W2GEventRepository;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-import scala.collection.JavaConversions;
-import views.html.index;
+import scala.concurrent.duration.Duration;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 @Named
 @Singleton
@@ -44,6 +43,21 @@ public class Application extends Controller {
         this.w2GEventRepository = w2GEventRepository;
     }
 
+    static {
+        Akka.system().scheduler().schedule(
+                Duration.create(0, TimeUnit.MILLISECONDS), //Initial delay 0 milliseconds
+                Duration.create(5, TimeUnit.SECONDS),     //Frequency 1 minutes
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Calendar cal = Calendar.getInstance();
+                        System.out.println("PING!!!! " + cal.getTime());
+                        w2GEventRepository.findOne(1);
+                    }
+                },
+                Akka.system().dispatcher()
+        );
+    }
 
     public Result index() {
         return listAllEvents();

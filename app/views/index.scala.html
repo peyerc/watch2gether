@@ -6,11 +6,11 @@
         @event.id
         @event.show
         @event.time
+        @event.deliveryStatus
 
         @for(msisdn <- event.msisdns) {
             @msisdn.msisdn
         }
-
         <br/>
     }
 
