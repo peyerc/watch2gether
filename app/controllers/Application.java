@@ -14,22 +14,18 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
-import scala.concurrent.duration.Duration;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
 
 @Named
 @Singleton
@@ -41,22 +37,6 @@ public class Application extends Controller {
     @Inject
     public Application(final W2GEventRepository w2GEventRepository) {
         this.w2GEventRepository = w2GEventRepository;
-    }
-
-    static {
-        Akka.system().scheduler().schedule(
-                Duration.create(0, TimeUnit.MILLISECONDS), //Initial delay 0 milliseconds
-                Duration.create(5, TimeUnit.SECONDS),     //Frequency 1 minutes
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        Calendar cal = Calendar.getInstance();
-                        System.out.println("PING!!!! " + cal.getTime());
-                        //w2GEventRepository.findOne(1);
-                    }
-                },
-                Akka.system().dispatcher()
-        );
     }
 
     public Result index() {

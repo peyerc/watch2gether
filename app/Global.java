@@ -1,3 +1,6 @@
+import actors.SpringExtension;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,9 +14,7 @@ import scala.concurrent.duration.Duration;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 /**
  * Application wide behaviour. We establish a Spring application context for the dependency injection system and
@@ -42,11 +43,25 @@ public class Global extends GlobalSettings {
         // can be called multiple times. The reason for doing during startup is so that the Play configuration is
         // entirely available to this application context.
         ctx.register(SpringDataJpaConfiguration.class);
-        ctx.scan("controllers", "models", "services");
+        ctx.scan("controllers", "models", "actors");
         ctx.refresh();
+
+        //Execute all 5 seconds our eventManager
+        ActorSystem system = ctx.getBean(ActorSystem.class);
+        ActorRef eventManager = system.actorOf(SpringExtension.SpringExtProvider.get(system).props("eventManager"), "eventManager");
+
+        Akka.system().scheduler().schedule(
+                Duration.create(0, TimeUnit.MILLISECONDS), //Initial delay 0 milliseconds
+                Duration.create(5, TimeUnit.SECONDS),     //Frequency 1 minutes
+                eventManager,
+                "tick",
+                Akka.system().dispatcher(),
+                eventManager
+        );
 
         // This will construct the beans and call any construction lifecycle methods e.g. @PostConstruct
         ctx.start();
+
     }
 
     /**
