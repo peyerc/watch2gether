@@ -8,6 +8,9 @@ import play.mvc.*;
 
 import views.html.*;
 
+import java.util.Iterator;
+import java.util.List;
+
 public class Application extends Controller {
 
     public static Result index() {
@@ -39,8 +42,17 @@ public class Application extends Controller {
         Long time = timeN.asLong();
         String show = showN.asText();
 
-        //JsonNode numbers = json.findValue("numbers");
+        JsonNode numbersN = json.findValue("numbers");
+        if(numbersN != null) {
+            Iterator<JsonNode> elements = numbersN.elements();
+            while (elements.hasNext()) {
+                JsonNode next = elements.next();
+                int hdyNr = next.asInt();
 
+            }
+        }
+
+        // TODO: Now Save does data to database
 
 
         ObjectNode result = Json.newObject();
