@@ -1,30 +1,24 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.VoiceChatRoom;
 import models.W2GEvent;
 import models.W2GEventMsisdn;
 import models.W2GEventRepository;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Controller;
 import play.mvc.Result;
+import services.W2GService;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 
 @Named
@@ -32,11 +26,13 @@ import java.util.Iterator;
 public class Application extends Controller {
 
     private final W2GEventRepository w2GEventRepository;
+    private final W2GService w2GService;
 
     // We are using constructor injection to receive a repository to support our desire for immutability.
     @Inject
-    public Application(final W2GEventRepository w2GEventRepository) {
+    public Application(final W2GEventRepository w2GEventRepository, final W2GService w2GService) {
         this.w2GEventRepository = w2GEventRepository;
+        this.w2GService = w2GService;
     }
 
     public Result index() {
@@ -114,60 +110,26 @@ public class Application extends Controller {
         return ok(views.html.index.render(w2GEvents.iterator()));
     }
 
+    public Result getChatRoom() throws IOException {
 
-    public static Result sendMessage() throws IOException {
+        try {
+            VoiceChatRoom chatRoom = w2GService.getVoiceChatRoom();
+            return ok("Message sent! Chatroom name: " + chatRoom.getConferenceName() + "\nChat room url: " + chatRoom.getConferenceUrl());
 
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("https://api.swisscom.com/v1/messaging/sms/outbound/tel:+40000000000/requests");
-
-        String json = createJsonMessage();
-
-        StringEntity entity = new StringEntity(json);
-        httpPost.setEntity(entity);
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
-        httpPost.setHeader("client_id", "7V3QbSNyGonv4wETAIltvnN5bPYZbgyk");
-
-        CloseableHttpResponse response = client.execute(httpPost);
-        String bodyAsString = EntityUtils.toString(response.getEntity());
-        int statusCode = response.getStatusLine().getStatusCode();
-        client.close();
-
-        if(statusCode == 200) {
-            return ok("Message sent: " + bodyAsString);
-        } else {
-            return badRequest("Message couldn't be sent\n\nRequest: " + json + "\nResponse: " + bodyAsString);
+        } catch (Exception e) {
+            return badRequest("Message couldn't be sent: " + e.getMessage());
         }
     }
 
-    private static String createJsonMessage() throws IOException {
-        // Create the node factory that gives us nodes.
-        JsonNodeFactory factory = new JsonNodeFactory(false);
 
-        // create a json factory to write the treenode as json. for the example
-        // we just write to console
-        StringWriter sw = new StringWriter();
-        ObjectMapper mapper = new ObjectMapper();
+    public Result sendMessage() throws IOException {
+        try {
+            w2GService.sendSMS(new HashSet<String>(Arrays.asList("41767202020", "41765671938")), "This is a test!");
+            return ok("Message sent!");
 
-        // the root node - rootNode
-        JsonNode rootNode = factory.objectNode();
-        ObjectNode outboundSMSMessageRequest = mapper.createObjectNode();
-        outboundSMSMessageRequest.put("senderAddress", "tel:+40000000000");
-        ArrayNode address = mapper.createArrayNode();
-        address.add("tel:+41767202020");
-        address.add("tel:+41765671938");
-        outboundSMSMessageRequest.put("address", address);
-        ObjectNode message = mapper.createObjectNode();
-        message.put("message", "This was a triumph!");
-        outboundSMSMessageRequest.put("outboundSMSTextMessage", message);
-        outboundSMSMessageRequest.put("clientCorrelator", "Any id");
-        outboundSMSMessageRequest.put("senderName", "watch2gether");
-
-        ((ObjectNode) rootNode).put("outboundSMSMessageRequest", outboundSMSMessageRequest);
-
-        mapper.writeValue(sw, rootNode);
-
-        return sw.toString();
+        } catch (Exception e) {
+            return badRequest("Message couldn't be sent!");
+        }
     }
 
 }
