@@ -49,7 +49,10 @@ public class EventManager extends UntypedActor {
                 SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss");
 
                 System.out.println("..sending to: " + getMsisdns(event.msisdns));
-                w2GService.sendSMS(getMsisdns(event.msisdns), "Watch2Gether! Sendung " + event.show + " auf " + event.channel + " um " + dt.format(event.time) + "\n" + chatRoom.conferenceUrl);
+                w2GService.sendSMS(getMsisdns(event.msisdns), "Watch2Gether! "
+                        + "Sendung " + event.show
+                        + " auf " + event.channel
+                        + " um " + dt.format(event.time) + "\n" + "https://vidia.swisscom.ch/app/room/3238e176c47a4e94ba5c8396d097a9d6");
 
                 event.deliveryStatus = DeliveryStatus.DELIVERED;
 
