@@ -96,12 +96,10 @@ public class Application extends Controller {
         event.channel = "SRF 1";
         event.show = "10vor10";
         event.time = new Date();
-        event.msisdns.add(new W2GEventMsisdn("41767202020"));
-        event.msisdns.add(new W2GEventMsisdn("41767201234"));
-        event.msisdns.add(new W2GEventMsisdn("41767204444"));
+        event.msisdns.add(new W2GEventMsisdn("41760000000"));
+        event.msisdns.add(new W2GEventMsisdn("41760000001"));
 
         final W2GEvent savedEvent = w2GEventRepository.save(event);
-
 
         final Iterable<W2GEvent> w2GEvents = w2GEventRepository.findAll();
 

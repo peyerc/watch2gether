@@ -54,6 +54,25 @@ public class W2GService {
         return chatRoom;
     }
 
+    public VoiceChatRoom getVoiceChatRoomHangout() throws Exception {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost("https://plus.google.com/hangouts/_/gs745udxqqrpy7jfub6e4oja4aa");
+        CloseableHttpResponse response = client.execute(httpPost);
+        String json = EntityUtils.toString(response.getEntity());
+        int statusCode = response.getStatusLine().getStatusCode();
+        client.close();
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode voiceChatJN = mapper.readTree(json);
+
+        VoiceChatRoom chatRoom = new VoiceChatRoom();
+        chatRoom.setConferenceName(voiceChatJN.get("conference_name").asText());
+        chatRoom.setConferenceUrl(voiceChatJN.get("conference_url").asText());
+
+        return chatRoom;
+
+    }
+
     public boolean sendSMS(Set<String> msisdns, String message) throws Exception{
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://api.swisscom.com/v1/messaging/sms/outbound/tel:+40000000000/requests");

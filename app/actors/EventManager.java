@@ -52,7 +52,7 @@ public class EventManager extends UntypedActor {
                 w2GService.sendSMS(getMsisdns(event.msisdns), "Watch2Gether! "
                         + "Sendung " + event.show
                         + " auf " + event.channel
-                        + " um " + dt.format(event.time) + "\n" + "https://vidia.swisscom.ch/app/room/3238e176c47a4e94ba5c8396d097a9d6");
+                        + " um " + dt.format(event.time) + "\n" + "https://plus.google.com/hangouts/_/gs745udxqqrpy7jfub6e4oja4aa");
 
                 event.deliveryStatus = DeliveryStatus.DELIVERED;
 
