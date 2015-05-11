@@ -60,6 +60,7 @@ public class Application extends Controller {
         JsonNode json = request().body().asJson();
         JsonNode channelN = json.findValue("channel");
         JsonNode timeN = json.findValue("time");
+        JsonNode chatUrlN = json.findValue("chatUrl");
 
         JsonNode showN = json.findValue("show");
         if(channelN == null || timeN == null || showN == null) {
@@ -71,6 +72,7 @@ public class Application extends Controller {
         event.channel = channelN.asText();
         event.time = new Date(timeN.asLong() * 1000);
         event.show = showN.asText();
+        event.chatUrl = chatUrlN.asText();
 
         JsonNode numbersN = json.findValue("numbers");
         if(numbersN != null) {

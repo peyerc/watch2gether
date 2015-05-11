@@ -19,6 +19,7 @@ public class W2GEvent {
     public String show;
     public String channel;
     public Date time;
+    public String chatUrl;
 
     @Enumerated(EnumType.STRING)
     public DeliveryStatus deliveryStatus;

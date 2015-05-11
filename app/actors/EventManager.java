@@ -43,16 +43,25 @@ public class EventManager extends UntypedActor {
                 W2GEvent event = eventIter.next();
                 System.out.println("Send invitation for show: " + event.show);
 
-                VoiceChatRoom chatRoom = w2GService.getVoiceChatRoom();
-                System.out.println("Got chat room: " + chatRoom.conferenceUrl);
+                //VoiceChatRoom chatRoom = w2GService.getVoiceChatRoom();
+                //System.out.println("Got chat room: " + chatRoom.conferenceUrl);
 
-                SimpleDateFormat dt = new SimpleDateFormat("yyyyy-mm-dd hh:mm:ss");
+                SimpleDateFormat date = new SimpleDateFormat("dd. MMM yyyy", Locale.GERMAN);
+                SimpleDateFormat time = new SimpleDateFormat("hh:mm:ss", Locale.GERMAN);
+
+                Calendar now = Calendar.getInstance();
+                Calendar eventTime = Calendar.getInstance();
+                eventTime.setTime(event.time);
+                String dateString = date.format(event.time) + " " + time.format(event.time);
+                if (isSameDay(now, eventTime)) {
+                    dateString = "heute um " + time.format(event.time);
+                }
 
                 System.out.println("..sending to: " + getMsisdns(event.msisdns));
-                w2GService.sendSMS(getMsisdns(event.msisdns), "Watch2Gether! "
-                        + "Sendung " + event.show
-                        + " auf " + event.channel
-                        + " um " + dt.format(event.time) + "\n" + "https://plus.google.com/hangouts/_/gs745udxqqrpy7jfub6e4oja4aa");
+                w2GService.sendSMS(getMsisdns(event.msisdns), "Watch2Gether!\n"
+                        + "Sendung '" + event.show
+                        + "' auf '" + event.channel
+                        + "' " + dateString + "\n" + event.chatUrl);
 
                 event.deliveryStatus = DeliveryStatus.DELIVERED;
 
@@ -70,5 +79,15 @@ public class EventManager extends UntypedActor {
             setElements.add(msisdn.msisdn);
         }
         return  setElements;
+    }
+
+    public boolean isSameDay(Calendar cal1, Calendar cal2) {
+        if (cal1 == null || cal2 == null) {
+            throw new IllegalArgumentException("The dates must not be null");
+        }
+        return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
+
     }
 }
